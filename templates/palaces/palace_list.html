@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}My Memory Palaces{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-castle me-2"></i>My Memory Palaces</h1>
+        <a href="{% url 'palace_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create New Palace
+        </a>
+    </div>
+
+    {% if palaces %}
+        <div class="row g-4">
+            {% for palace in palaces %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card palace-card h-100 shadow-sm">
+                        {% if palace.image %}
+                            <img src="{{ palace.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ palace.name }}">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-{{ palace.palace_type }} fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ palace.name }}</h5>
+                            <p class="card-text text-muted flex-grow-1">
+                                {{ palace.description|truncatewords:15|default:"No description provided." }}
+                            </p>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-door-open me-1"></i>{{ palace.rooms.count }} room{{ palace.rooms.count|pluralize }}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    {% with total_items=palace.rooms.all|length %}
+                                        {% if total_items > 0 %}
+                                            {{ total_items }} item{{ total_items|pluralize }}
+                                        {% else %}
+                                            No items yet
+                                        {% endif %}
+                                    {% endwith %}
+                                </small>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{{ palace.get_absolute_url }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <a href="{% url 'start_study_session' palace.pk %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-play me-1"></i>Study
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{% url 'palace_edit' palace.pk %}">
+                                            <i class="fas fa-edit me-2"></i>Edit
+                                        </a></li>
+                                        <li><a class="dropdown-item text-danger" href="{% url 'palace_delete' palace.pk %}">
+                                            <i class="fas fa-trash me-2"></i>Delete
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer bg-transparent">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Created {{ palace.created_at|date:"M d, Y" }}
+                                {% if palace.is_public %}
+                                    <span class="badge bg-info ms-2">Public</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <nav aria-label="Palace pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-castle fa-5x text-muted mb-4"></i>
+            <h3 class="text-muted">No Memory Palaces Yet</h3>
+            <p class="lead text-muted mb-4">Create your first memory palace to start training your mind!</p>
+            <a href="{% url 'palace_create' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>Create Your First Palace
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
