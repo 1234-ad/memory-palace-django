@@ -1,0 +1,1 @@
+web: gunicorn memory_palace.wsgi:application --log-file -
