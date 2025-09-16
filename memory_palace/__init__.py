@@ -1,0 +1,1 @@
+# Memory Palace Django Project
