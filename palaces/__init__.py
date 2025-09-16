@@ -1,0 +1,1 @@
+# Palaces app for Memory Palace project
